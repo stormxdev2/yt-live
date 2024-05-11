@@ -2,8 +2,6 @@ const { google } = require('googleapis');
 const http = require('http');
 const openradio = require('openradio');
 const ytdl = require('ytdl-core');
-
-// Load environment variables
 require('dotenv').config();
 
 // Initialize YouTube API client
@@ -12,8 +10,8 @@ const youtube = google.youtube({
   auth: process.env.YOUTUBE_API_KEY
 });
 
-// Stream key for broadcasting (replace with your stream key)
-const STREAM_KEY = 'q3wa-abb3-8yzw-rszy-av70';
+// Stream key for broadcasting
+const STREAM_KEY = 'q3wa-abb3-8yzw-rszy-av70'; // Replace with your stream key
 
 // Function to start live broadcast
 const startLiveStream = async (videoId) => {
@@ -75,5 +73,5 @@ const playYouTubeVideo = (videoId) => {
 };
 
 // Replace 'YOUR_YOUTUBE_VIDEO_ID' with the actual YouTube video ID
-const VIDEO_ID = '-p5NXiuZydw';
+const VIDEO_ID = '-p5NXiuZydw'; // Replace with your YouTube video ID
 playYouTubeVideo(VIDEO_ID);
