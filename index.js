@@ -1,21 +1,35 @@
+require('dotenv').config();
 const { spawn } = require('child_process');
 const { google } = require('googleapis');
 const http = require('http');
 const openradio = require('openradio');
 const ytdl = require('ytdl-core');
 
-// Function to install ffmpeg using apt via nix-shell
+// Function to install ffmpeg using apt-get
 const installFFmpeg = () => {
   return new Promise((resolve, reject) => {
-    const installProcess = spawn('nix-shell', ['--run', 'apt update && apt install -y ffmpeg']);
+    const installProcess = spawn('apt-get', ['update', '-y']);
 
     installProcess.on('close', (code) => {
       if (code === 0) {
-        console.log('ffmpeg installed successfully.');
-        resolve();
+        const ffmpegInstallProcess = spawn('apt-get', ['install', 'ffmpeg', '-y']);
+
+        ffmpegInstallProcess.on('close', (ffmpegCode) => {
+          if (ffmpegCode === 0) {
+            console.log('ffmpeg installed successfully.');
+            resolve();
+          } else {
+            console.error('Failed to install ffmpeg.');
+            reject(new Error('Failed to install ffmpeg.'));
+          }
+        });
+
+        ffmpegInstallProcess.stderr.on('data', (data) => {
+          console.error(`stderr: ${data}`);
+        });
       } else {
-        console.error('Failed to install ffmpeg.');
-        reject(new Error('Failed to install ffmpeg.'));
+        console.error('Failed to update package repositories.');
+        reject(new Error('Failed to update package repositories.'));
       }
     });
 
@@ -64,5 +78,5 @@ const playYouTubeVideo = async (videoId) => {
 };
 
 // Replace 'YOUR_YOUTUBE_VIDEO_ID' with the actual YouTube video ID
-const VIDEO_ID = '-p5NXiuZydw'; // Replace with your YouTube video ID
+const VIDEO_ID = process.env.YOUTUBE_VIDEO_ID; // Retrieve video ID from environment variable
 playYouTubeVideo(VIDEO_ID);
