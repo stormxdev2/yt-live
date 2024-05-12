@@ -10,8 +10,8 @@
   "license": "UNLICENSED",
   "dependencies": {
     "googleapis": "^105.0.0",
-    "openradio": "^2.0.0",
-    "ytdl-core": "^5.3.0",
+    "openradio": "^1.0.0",
+    "ytdl-core": "^4.7.3",
     "dotenv": "^10.0.0"
   }
 }
