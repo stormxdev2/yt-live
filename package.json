@@ -10,7 +10,6 @@
     "dotenv": "^16.0.0",
     "googleapis": "^92.0.0",
     "http": "^0.0.1-security",
-    "openradio": "^2.0.0",
     "ytdl-core": "^4.9.2"
   },
   "engines": {
