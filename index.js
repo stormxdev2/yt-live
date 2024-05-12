@@ -56,7 +56,7 @@ const startLiveStreaming = async (accessToken) => {
     auth: accessToken,
   });
 
-  const videoUrl = 'https://www.youtube.com/watch?v=-p5NXiuZydw';
+  const videoUrl = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID';
 
   try {
     const response = await youtube.liveBroadcasts.insert({
@@ -74,23 +74,7 @@ const startLiveStreaming = async (accessToken) => {
 
     console.log('Live broadcast created:', response.data);
 
-    const { id } = response.data;
-    const streamUrl = await youtube.liveStreams.insert({
-      part: 'snippet,cdn',
-      requestBody: {
-        snippet: {
-          title: 'Live Stream Title',
-        },
-        cdn: {
-          resolution: 'variable',
-          ingestionType: 'rtmp',
-        },
-      },
-    });
-
-    console.log('Stream created:', streamUrl.data);
-
-    const { streamUrl, streamName } = streamUrl.data.cdn.ingestionInfo;
+    const { streamUrl, streamName } = response.data.cdn.ingestionInfo;
 
     // Use the stream URL and stream name to start streaming
     console.log(`Start streaming to: ${streamUrl}/${streamName}`);
