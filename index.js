@@ -1,16 +1,15 @@
+// Load environment variables
+require('dotenv').config();
+
 const { google } = require('googleapis');
 const http = require('http');
 const openradio = require('openradio');
 const ytdl = require('ytdl-core');
 
-// Load environment variables if necessary (dotenv)
-// require('dotenv').config();
-
 // Initialize YouTube API client
 const youtube = google.youtube({
   version: 'v3',
-  // Use environment variable for YouTube API key if applicable
-  // auth: process.env.YOUTUBE_API_KEY
+  auth: process.env.YOUTUBE_API_KEY // Load YouTube API key from .env file
 });
 
 // Stream key for broadcasting (replace with your stream key)
@@ -50,6 +49,9 @@ const startLiveStream = async (videoId) => {
     console.log(`Live stream started: https://www.youtube.com/watch?v=${videoId}`);
   } catch (error) {
     console.error('Error starting live stream:', error.message);
+    if (error.response && error.response.data && error.response.data.error) {
+      console.error('YouTube API error details:', error.response.data.error);
+    }
   }
 };
 
