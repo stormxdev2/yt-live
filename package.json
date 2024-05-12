@@ -1,16 +1,20 @@
 {
-  "name": "youtube-live-stream",
+  "name": "yt-live",
   "version": "1.0.0",
-  "description": "24/7 live stream using a YouTube video",
+  "description": "YouTube Live Stream",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "Your Name",
-  "license": "UNLICENSED",
   "dependencies": {
-    "googleapis": "^105.0.0",
-    "openradio": "^1.0.0",
-    "ytdl-core": "^4.7.3"
-  }
+    "dotenv": "^10.0.0",
+    "googleapis": "^105.1.0",
+    "http": "0.0.1-security",
+    "openradio": "^1.3.0",
+    "ytdl-core": "^5.3.0"
+  },
+  "engines": {
+    "node": "20.12.2"
+  },
+  "license": "UNLICENSED"
 }
