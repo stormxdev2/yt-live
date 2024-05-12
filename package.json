@@ -1,15 +1,16 @@
 {
   "name": "youtube-live-stream",
   "version": "1.0.0",
-  "description": "24/7 live stream with YouTube video using Replit",
+  "description": "24/7 live stream using a YouTube video",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "author": "Your Name",
+  "license": "UNLICENSED",
   "dependencies": {
-    "dotenv": "^10.0.0",
-    "googleapis": "^120.0.0",
+    "googleapis": "^105.0.0",
     "openradio": "^1.0.0",
-    "ytdl-core": "^4.10.3"
+    "ytdl-core": "^4.7.3"
   }
 }
