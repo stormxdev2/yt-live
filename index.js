@@ -56,7 +56,7 @@ const startLiveStreaming = async (accessToken) => {
     auth: accessToken,
   });
 
-  const videoUrl = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID';
+  const videoUrl = 'https://www.youtube.com/watch?v=-p5NXiuZydw';
 
   try {
     const response = await youtube.liveBroadcasts.insert({
