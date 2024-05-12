@@ -1,82 +1,77 @@
-// Load environment variables
+const { google } = require('googleapis');
+const { OAuth2Client } = require('google-auth-library');
+const openradio = require('openradio'); // Assuming this is used for streaming
+const ytdl = require('ytdl-core');
 require('dotenv').config();
 
-const { google } = require('googleapis');
-const http = require('http');
-const openradio = require('openradio');
-const ytdl = require('ytdl-core');
+// Load environment variables from .env file
+const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
-// Initialize YouTube API client
-const youtube = google.youtube({
-  version: 'v3',
-  auth: process.env.YOUTUBE_API_KEY // Load YouTube API key from .env file
+// Configure OAuth2 client
+const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
+
+// OAuth2 URL for user consent
+const authUrl = oAuth2Client.generateAuthUrl({
+  access_type: 'offline', // Enables refresh token
+  scope: ['https://www.googleapis.com/auth/youtube.force-ssl'] // Specify required scopes
 });
 
-// Stream key for broadcasting (replace with your stream key)
-const STREAM_KEY = 'q3wa-abb3-8yzw-rszy-av70';
+console.log('Authorize this app by visiting this URL:', authUrl);
 
-// Function to start live broadcast
-const startLiveStream = async (videoId) => {
+// Replace <AUTHORIZATION_CODE> with the actual authorization code obtained manually
+const authorizationCode = '<AUTHORIZATION_CODE>';
+
+// Function to exchange authorization code for access token
+async function getAccessToken() {
   try {
-    // Create a live broadcast
-    const { data: { id: broadcastId } } = await youtube.liveBroadcasts.insert({
-      part: 'snippet,status,contentDetails',
+    const { tokens } = await oAuth2Client.getToken(authorizationCode);
+    console.log('Access token:', tokens.access_token);
+
+    // Use the access token to start the live stream
+    const youtube = google.youtube({
+      version: 'v3',
+      auth: oAuth2Client
+    });
+
+    // Get YouTube video info (replace with your video URL)
+    const videoUrl = 'https://www.youtube.com/watch?v=-p5NXiuZydw';
+    const videoInfo = await ytdl.getInfo(videoUrl);
+
+    // Start the live stream
+    const liveBroadcastResponse = await youtube.liveBroadcasts.insert({
+      part: ['snippet,status'],
       requestBody: {
         snippet: {
-          title: '24/7 Live Stream',
-          scheduledStartTime: new Date().toISOString(),
-          description: 'Continuous live stream using a YouTube video'
+          title: 'My Live Stream',
+          description: '24/7 live stream using YouTube API'
         },
         status: {
           privacyStatus: 'public'
-        },
-        contentDetails: {
-          monitorStream: {
-            enableMonitorStream: false
-          },
-          enableDvr: true
         }
       }
     });
 
-    // Bind the broadcast to the specified video and stream key
-    await youtube.liveBroadcasts.bind({
-      part: 'id,contentDetails',
-      id: broadcastId,
-      streamId: STREAM_KEY
+    const broadcastId = liveBroadcastResponse.data.id;
+    const streamUrl = `https://www.youtube.com/watch?v=${broadcastId}`;
+
+    // Use openradio (or equivalent) to stream to YouTube
+    const radio = new openradio({
+      url: streamUrl,
+      stream: videoInfo.formats[0].url // Use the first available format URL for streaming
     });
 
-    console.log(`Live stream started: https://www.youtube.com/watch?v=${videoId}`);
+    radio.on('error', (err) => {
+      console.error('Error starting live stream:', err);
+    });
+
+    radio.on('stream-start', () => {
+      console.log('Live stream started successfully!');
+    });
+
+    radio.start();
   } catch (error) {
-    console.error('Error starting live stream:', error.message);
-    if (error.response && error.response.data && error.response.data.error) {
-      console.error('YouTube API error details:', error.response.data.error);
-    }
+    console.error('Error retrieving access token:', error.message);
   }
-};
+}
 
-// Function to play YouTube video as a live stream
-const playYouTubeVideo = (videoId) => {
-  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-  const stream = ytdl(videoUrl, { quality: 'highestaudio' });
-  const radio = openradio();
-  const repeater = openradio.repeater(radio);
-
-  http.createServer((req, res) => {
-    res.setHeader('content-type', 'audio/mp3');
-    if (radio.header) res.write(radio.header);
-    repeater(res);
-  }).listen(process.env.PORT || 3000);
-
-  radio.play(stream);
-  console.log(`Playing YouTube video: https://www.youtube.com/watch?v=${videoId}`);
-
-  // Start the live broadcast after a short delay (e.g., 5 seconds)
-  setTimeout(() => {
-    startLiveStream(videoId);
-  }, 5000);
-};
-
-// Replace 'YOUR_YOUTUBE_VIDEO_ID' with the actual YouTube video ID
-const VIDEO_ID = '-p5NXiuZydw';
-playYouTubeVideo(VIDEO_ID);
+getAccessToken(); // Call the function to retrieve access token
